@@ -41,14 +41,22 @@ const publish = () => {
 
 // show the configuration modal dialog UI
 const showConfig = () => {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet(),
+  let sheet = SpreadsheetApp.getActiveSpreadsheet(),
     props = PropertiesService.getDocumentProperties().getProperties(),
     template = HtmlService.createTemplateFromFile('config');
   template.sheetId = sheet.getId();
   // default to empty strings, otherwise the string "undefined" will be shown
   // for the value
+  if(!props.bucketName) {
+    props = {
+      bucketName: '',
+      path: '',
+      awsAccessKeyId: '',
+      awsSecretKey: '',
+      awsRegion: ''
+    };
+  }
   const templateProps = Object.entries(props)
-  .reduce((acc, [key, val]) => Object.assign(acc, { [key]: val || '' }), {});
   Object.assign(template, templateProps);
   SpreadsheetApp.getUi()
   .showModalDialog(template.evaluate(), 'Amazon S3 publish configuration');
