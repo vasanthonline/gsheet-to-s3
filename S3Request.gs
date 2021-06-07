@@ -223,46 +223,25 @@ S3Request.prototype.getAuthHeader_ = function () {
 
   canonicalRequest += this.getHexSha256_(this.content);
 
-  console.log('canonicalRequest:\n');
-  console.log(canonicalRequest);
-
   var stringToSign = "AWS4-HMAC-SHA256\n" +
        dateTimeString + "\n" +
       dateString + "/" + this.region + "/s3/aws4_request\n" +
       this.getHexSha256_(canonicalRequest);
-  console.log('stringToSign:\n');
-  console.log(stringToSign);
 
   var dateKey              = Utilities.computeHmacSha256Signature(dateString, "AWS4"+ this.service.secretAccessKey);
-  console.log('dateKey', dateString, dateKey.map(function(e) {return ("0" + (e < 0 ? e + 256 : e).toString(16)).slice(-2)}).join(""));
-  console.log('Expected: dateKey 20210604 6ddc6082f6b48d63e849cb46deb6741cf1e833254b30deb6d66073673885b95a')
   var dateRegionKey        = Utilities.computeHmacSha256Signature(Utilities.newBlob(this.region).getBytes(), dateKey);
-  console.log('dateRegionKey', this.region, dateRegionKey.map(function(e) {return ("0" + (e < 0 ? e + 256 : e).toString(16)).slice(-2)}).join(""));
-  console.log('Expected: dateRegionKey ap-south-1 689eaf8f6186a68454d247d9786e7f6a30748417ee7805767459b8262fb185f6');
   var dateRegionServiceKey = Utilities.computeHmacSha256Signature(Utilities.newBlob("s3").getBytes(), dateRegionKey);
-  console.log('dateRegionServiceKey', dateRegionServiceKey.map(function(e) {return ("0" + (e < 0 ? e + 256 : e).toString(16)).slice(-2)}).join(""));
-  console.log('Expected: dateRegionServiceKey 876156cb6fc53b8be39cf8c059a7332fcec69ee3010ec8299f24b99891cf3b17');
 
   var signingKey           = Utilities.computeHmacSha256Signature(Utilities.newBlob("aws4_request").getBytes(), dateRegionServiceKey);
-  // signingKey = signingKey.map(function(e) {return ("0" + (e < 0 ? e + 256 : e).toString(16)).slice(-2)}).join("");
-  console.log('signingKey', signingKey.map(function(e) {return ("0" + (e < 0 ? e + 256 : e).toString(16)).slice(-2)}).join(""));
-  console.log('Expected: signingKey a1fc852f7e583b22b475652a891d3471b4b58d35545be89bdafbf771810ce782');
-
   
   var signature = Utilities.computeHmacSha256Signature(Utilities.newBlob(stringToSign).getBytes(), signingKey);
   signature = signature.map(function(e) {return ("0" + (e < 0 ? e + 256 : e).toString(16)).slice(-2)}).join("");
-
-  console.log('signature:\n');
-  console.log(signature);
-  console.log('expected signature: f65ed82710d8858810670a2375caf8f67a0098fae105097e185b202cc40afe7a');
 
   var finalHeader =  "AWS4-HMAC-SHA256 " + 
   "Credential=" + this.service.accessKeyId + "/" + dateString + "/" + this.region + "/s3/aws4_request," +
   "SignedHeaders=host;x-amz-content-sha256;x-amz-date," +
   "Signature=" + signature;
 
-  console.log('finalHeader:\n');
-  console.log(finalHeader);
   return finalHeader;
 };
 
