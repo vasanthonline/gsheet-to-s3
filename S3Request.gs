@@ -115,7 +115,7 @@ S3Request.prototype.addHeader = function(name, value) {
  * @return {string} url to which request will be sent
  */
 S3Request.prototype.getUrl = function() {
-  return "http://" + this.bucket.toLowerCase() + ".s3.amazonaws.com/" + this.objectName;
+  return "https://" + this.bucket.toLowerCase() + ".s3.amazonaws.com/" + this.objectName;
 };
 /* executes the S3 request and returns HttpResponse
  *
@@ -209,7 +209,7 @@ S3Request.prototype.getAuthHeader_ = function () {
 
   var canonicalRequest = this.httpMethod + "\n";
 
-  var canonicalizedResource = this.getUrl().replace("http://"+this.bucket.toLowerCase()+".s3.amazonaws.com","");
+  var canonicalizedResource = this.getUrl().replace("https://"+this.bucket.toLowerCase()+".s3.amazonaws.com","");
   canonicalRequest += canonicalizedResource + "\n\n";
 
   var amzHeaders = [
